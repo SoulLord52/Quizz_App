@@ -8,12 +8,16 @@ import 'package:toastification/toastification.dart';
 
 import 'Auth/SignUp.dart';
 import 'Cubit/AuthCubit.dart';
+import 'Cubit/HomeCubit.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(MultiBlocProvider(
-      providers: [BlocProvider(create: (context) => AuthCubit())],
+      providers: [
+        BlocProvider(create: (context) => AuthCubit()),
+        BlocProvider(create: (context) => HomeCubit()),
+      ],
       child: const MyApp()));
 }
 
@@ -23,7 +27,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: FirebaseAuth.instance.userChanges(),
+      stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snap) {
         return ToastificationWrapper(
           child: MaterialApp(

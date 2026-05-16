@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CustomTextField extends StatefulWidget {
@@ -8,13 +9,17 @@ class CustomTextField extends StatefulWidget {
     required this.controller,
     this.isPassword = false,
     this.prefixIcon,
+    this.inputFormatters,
+    this.validator,
+    this.labelText,
   });
-
+  final String? labelText;
   final String hintText;
   final TextEditingController controller;
   final bool isPassword;
   final IconData? prefixIcon;
-
+  final List<TextInputFormatter>? inputFormatters;
+  final String? Function(String?)? validator;
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
 }
@@ -25,56 +30,41 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      inputFormatters: widget.inputFormatters,
+      validator: widget.validator,
+      keyboardType: TextInputType.emailAddress,
       controller: widget.controller,
       obscureText: widget.isPassword && !isVisible,
-
       style: GoogleFonts.workSans(
         color: Colors.white,
         fontSize: 18,
         fontWeight: FontWeight.bold,
       ),
-
       decoration: InputDecoration(
+        labelText: widget.labelText,
+        labelStyle: GoogleFonts.workSans(color: Colors.grey.shade500, fontSize: 14),
         hintText: widget.hintText,
-
-        hintStyle: TextStyle(
-          color: Colors.grey.shade500,
-          fontSize: 14,
-        ),
-
+        hintStyle: GoogleFonts.workSans(color: Colors.grey.shade500, fontSize: 14),
         filled: true,
-        fillColor:  Color(0xff101827),
-
-        contentPadding: EdgeInsets.symmetric(
-          vertical: 18,
-          horizontal: 16,
-        ),
-
+        fillColor: Color(0xff101827),
+        contentPadding: EdgeInsets.symmetric(vertical: 18, horizontal: 16),
         prefixIcon: widget.prefixIcon != null
-            ? Icon(
-          widget.prefixIcon,
-          color: Colors.grey.shade500,
-          size: 20,
-        )
+            ? Icon(widget.prefixIcon, color: Colors.grey.shade500, size: 20)
             : null,
-
         suffixIcon: widget.isPassword
             ? IconButton(
-          onPressed: () {
-            setState(() {
-              isVisible = !isVisible;
-            });
-          },
-          icon: Icon(
-            isVisible
-                ? Icons.visibility
-                : Icons.visibility_off,
-            color: Colors.grey.shade500,
-            size: 20,
-          ),
-        )
+                onPressed: () {
+                  setState(() {
+                    isVisible = !isVisible;
+                  });
+                },
+                icon: Icon(
+                  isVisible ? Icons.visibility : Icons.visibility_off,
+                  color: Colors.grey.shade500,
+                  size: 20,
+                ),
+              )
             : null,
-
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
@@ -82,24 +72,17 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: Colors.white.withOpacity(.05),
-          ),
+          borderSide: BorderSide(color: Colors.white.withOpacity(.05)),
         ),
 
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: Colors.blueAccent,
-            width: 1.2,
-          ),
+          borderSide:  BorderSide(color: Colors.blueAccent, width: 1.2),
         ),
 
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: Colors.red,
-          ),
+          borderSide: BorderSide(color: Colors.red),
         ),
       ),
     );

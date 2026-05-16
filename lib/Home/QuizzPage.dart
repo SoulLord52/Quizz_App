@@ -38,40 +38,45 @@ class _QuizzPageState extends State<QuizzPage> {
           ),
         ],
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  "Question 7 of 10",
-                  style: GoogleFonts.workSans(fontSize: 18, color: Colors.grey),
-                ),
-                Spacer(),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    "${(widget.progress * 100).toInt()}%",
-                    style: GoogleFonts.acme(color: Colors.blueAccent),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    "Question 7 of 10",
+                    style: GoogleFonts.workSans(fontSize: 18, color: Colors.grey),
                   ),
-                ),
-              ],
-            ),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: LinearProgressIndicator(
-                value: widget.progress,
-                minHeight: 7,
-                backgroundColor: Colors.white10,
+                  Spacer(),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      "${(widget.progress * 100).toInt()}%",
+                      style: GoogleFonts.acme(color: Colors.blueAccent),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            SizedBox(height: 10,),
-            Text("What will be printed to the console\nwhen this build method executes?", style: GoogleFonts.workSans(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),),
-            SizedBox(height: 10,),
-            Image.asset("assets/images/div.rounded-xl.png", fit: BoxFit.cover, width: double.infinity, height: 100,),
-          ],
+              SizedBox(height: 5),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: LinearProgressIndicator(
+                  value: widget.progress,
+                  minHeight: 7,
+                  backgroundColor: Colors.white10,
+                ),
+              ),
+              SizedBox(height: 10,),
+              Align(alignment: Alignment.center, child: Text("What will be printed to the console,\nwhen this build method executes?", style: GoogleFonts.workSans(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),)),
+              SizedBox(height: 10,),
+              Image.asset("assets/images/div.rounded-xl.png", fit: BoxFit.cover, width: double.infinity, height: 500,),
+              SizedBox(height: 15,),
+              
+            ],
+          ),
         ),
       ),
     );

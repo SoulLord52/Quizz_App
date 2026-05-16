@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quizz_app/Auth/SignIn.dart';
 import 'package:quizz_app/Home/HomeScreen.dart';
+import 'package:quizz_app/validatos/AppValidators.dart';
 import 'package:toastification/toastification.dart';
 import '../Cubit/AuthCubit.dart';
 import '../Cubit/AuthState.dart';
@@ -22,6 +23,7 @@ class SignUp extends StatefulWidget {
 class _SignUpState extends State<SignUp> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passWordController = TextEditingController();
+  final formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -34,173 +36,230 @@ class _SignUpState extends State<SignUp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(title: 'assets/images/div.flex.png', isDark: true),
-      body: BlocConsumer<AuthCubit, AuthState>(
-        listener: (context, state) {
-          if (state is AuthError) {
-            toastification.show(
-              type: ToastificationType.error,
-              title: Text(state.message),
-            );
-          }
-        },
-        builder: (context, state) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            child: Column(
-              children: [
-                Text(
-                  "Welcome to the Circuit",
+      body: Form(
+        key: formKey,
+        child: BlocConsumer<AuthCubit, AuthState>(
+          listenWhen: (previous, current) {
+            return previous.runtimeType != current.runtimeType;
+          },
+          listener: (context, state) {
+            if (state is AuthError) {
+              toastification.show(
+                type: ToastificationType.error,
+                title: Text(state.message, style: GoogleFonts.workSans(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.red)),
+              );
+            } else if (state is AuthLoaded) {
+              toastification.show(
+                type: ToastificationType.success,
+                title: Text(
+                  "Successfully authorized",
                   style: GoogleFonts.workSans(
-                    fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    fontSize: 16,
+                    color: Colors.green,
                   ),
                 ),
-                SizedBox(height: 10),
-                Text(
-                  "Connect with developers solving the\nworld's toughest technical puzzles.",
-                  style: GoogleFonts.workSans(fontSize: 18, color: Colors.grey),
-                ),
-                SizedBox(height: 15),
-                CustomTextField(
-                  hintText: 'Enter your email!',
-                  controller: _emailController,
-                  prefixIcon: CupertinoIcons.mail,
-                ),
-                SizedBox(height: 20),
-                CustomTextField(
-                  hintText: 'Enter your password!',
-                  controller: _passWordController,
-                  prefixIcon: CupertinoIcons.lock,
-                  isPassword: true,
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => SignIn()),
-                      );
-                    },
-                    child: Text(
-                      "Already have an account?",
-                      style: GoogleFonts.workSans(
-                        color: Colors.grey,
-                        fontSize: 16,
-                      ),
+              );
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => HomeScreen()),
+                    (_) => false,
+              );
+            }
+          },
+          builder: (context, state) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              child: Column(
+                children: [
+                  Text(
+                    "Welcome to the Circuit",
+                    style: GoogleFonts.workSans(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
-                ),
-                SizedBox(height: 20),
-                state is AuthLoading
-                    ? CircularProgressIndicator()
-                    : AppButton(
-                        onTap: () {
-                          context.read<AuthCubit>().signUp(
-                            email: _emailController.text,
-                            password: _passWordController.text,
-                          );
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => HomeScreen(),
-                            ),
-                            (_) => false,
-                          );
-                        },
-                        text: 'Sign Up >',
-                      ),
-                SizedBox(height: 15),
-                Divider(color: Colors.grey.shade900),
-                Text(
-                  "Or continue with",
-                  style: GoogleFonts.workSans(fontSize: 16, color: Colors.grey),
-                ),
-                SizedBox(height: 10),
-                Row(
-                  children: [
-                    Spacer(),
-                    OutlinedButton(
-                      onPressed: () async {
-                        final user = await GoogleAuthService.signInWithGoogle(
-                          true,
-                        );
-                        if (user != null) {
-                          debugPrint("Success: ${user.email}");
-                          if (context.mounted) {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (_) => HomeScreen()),
-                            );
-                          }
-                        } else {
-                          debugPrint("Google sign in failed");
-                        }
-                      },
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: Color(0XFF101622),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadiusGeometry.circular(20),
-                          side: BorderSide(color: Color(0XFF101622)),
-                        ),
-                        fixedSize: Size(210, 50),
-                      ),
-                      child: Row(
-                        children: [
-                          Image.asset(
-                            "assets/images/google.png",
-                            height: 35,
-                            width: 35,
-                            fit: BoxFit.cover,
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            "Google",
-                            style: GoogleFonts.workSans(
-                              color: Colors.white,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
+                  SizedBox(height: 10),
+                  Text(
+                    "Connect with developers solving the\nworld's toughest technical puzzles.",
+                    style: GoogleFonts.workSans(
+                      fontSize: 18,
+                      color: Colors.grey,
                     ),
-                    SizedBox(width: 20),
-                    OutlinedButton(
+                  ),
+                  SizedBox(height: 15),
+                  CustomTextField(
+                    hintText: 'Enter your email!',
+                    labelText: 'Email',
+                    controller: _emailController,
+                    prefixIcon: CupertinoIcons.mail,
+                    validator: Validators.email,
+                  ),
+                  SizedBox(height: 20),
+                  CustomTextField(
+                    hintText: 'Enter your password!',
+                    labelText: 'Password',
+                    controller: _passWordController,
+                    prefixIcon: CupertinoIcons.lock,
+                    isPassword: true,
+                    validator: Validators.password,
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
                       onPressed: () {},
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: Color(0XFF101622),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadiusGeometry.circular(20),
-                          side: BorderSide(color: Color(0XFF101622)),
-                        ),
-                        fixedSize: Size(210, 50),
-                      ),
-                      child: Row(
-                        children: [
-                          Image.network(
-                            "assets/images/github.png",
-                            height: 30,
-                            width: 30,
+                      child: RichText(
+                        text: TextSpan(
+                          style: GoogleFonts.workSans(
+                            color: Colors.grey,
+                            fontSize: 16,
                           ),
-                          SizedBox(width: 10),
-                          Text(
-                            "Git Hub",
-                            style: GoogleFonts.workSans(
-                              color: Colors.white,
-                              fontSize: 16,
+                          children: [
+                            TextSpan(text: "Or Sign Up with "),
+                            TextSpan(
+                              text: "phone number",
+                              style: GoogleFonts.workSans(
+                                color: Colors.grey,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                decoration: TextDecoration.underline,
+                                decorationColor: Colors.grey,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                    Spacer(),
-                  ],
-                ),
-              ],
-            ),
-          );
-        },
+                  ),
+                  SizedBox(height: 10),
+                  state is AuthLoading
+                      ? CircularProgressIndicator()
+                      : AppButton(
+                          onTap: () {
+                            if (!formKey.currentState!.validate()) {
+                              return;
+                            }
+                            context.read<AuthCubit>().signUp(
+                              email: _emailController.text,
+                              password: _passWordController.text,
+                            );
+                          },
+                          text: 'Sign Up >',
+                        ),
+                  SizedBox(height: 15),
+                  Divider(color: Colors.grey.shade900),
+                  Text(
+                    "Or continue with",
+                    style: GoogleFonts.workSans(
+                      fontSize: 16,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Spacer(),
+                      OutlinedButton(
+                        onPressed: () async {
+                          final user = await GoogleAuthService.signInWithGoogle(
+                            true,
+                          );
+                          if (user != null) {
+                            debugPrint("Success: ${user.email}");
+                            if (context.mounted) {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (_) => HomeScreen()),
+                              );
+                            }
+                          } else {
+                            debugPrint("Google sign in failed");
+                          }
+                        },
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: Color(0XFF101622),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadiusGeometry.circular(20),
+                            side: BorderSide(color: Color(0XFF101622)),
+                          ),
+                          fixedSize: Size(210, 50),
+                        ),
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              "assets/images/google.png",
+                              height: 35,
+                              width: 35,
+                              fit: BoxFit.cover,
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              "Google",
+                              style: GoogleFonts.workSans(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 20),
+                      OutlinedButton(
+                        onPressed: () {},
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: Color(0XFF101622),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadiusGeometry.circular(20),
+                            side: BorderSide(color: Color(0XFF101622)),
+                          ),
+                          fixedSize: Size(210, 50),
+                        ),
+                        child: Row(
+                          children: [
+                            Image.network(
+                              "assets/images/github.png",
+                              height: 30,
+                              width: 30,
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              "Git Hub",
+                              style: GoogleFonts.workSans(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Spacer(),
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => SignIn()),
+                        );
+                      },
+                      child: Text(
+                        "Already have an account?",
+                        style: GoogleFonts.workSans(
+                          color: Colors.grey,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
